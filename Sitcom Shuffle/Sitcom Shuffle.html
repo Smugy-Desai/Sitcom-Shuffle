@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sitcom Shuffle</title>
+    <style>
+:root {
+  --ink: #231b16;
+  --muted: #6f5f58;
+  --panel: #fffdf7;
+  --stage: #fff1b8;
+  --spotlight: #ffe078;
+  --tomato: #f05b45;
+  --blue: #1f8ee7;
+  --green: #35b77a;
+  --pink: #f58bb4;
+  --shadow: 0 20px 50px rgba(47, 31, 18, 0.22);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.25) 1px, transparent 1px) 0 0 / 42px 42px,
+    radial-gradient(circle at 18% 10%, rgba(255, 255, 255, 0.92), transparent 16rem),
+    radial-gradient(circle at 82% 12%, rgba(245, 139, 180, 0.28), transparent 17rem),
+    linear-gradient(135deg, #ffe36d 0%, #ffb35c 42%, #88dbf4 100%);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(115deg, transparent 0 18%, rgba(255, 255, 255, 0.32) 18% 24%, transparent 24% 100%),
+    linear-gradient(245deg, transparent 0 22%, rgba(255, 255, 255, 0.22) 22% 28%, transparent 28% 100%);
+}
+
+button,
+select {
+  font: inherit;
+}
+
+.app-shell {
+  position: relative;
+  width: min(100%, 1040px);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 22px;
+  display: grid;
+  place-items: center;
+}
+
+.set-dressing {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.prop {
+  position: absolute;
+  border: 2px solid rgba(35, 27, 22, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 253, 247, 0.78);
+  box-shadow: 0 12px 26px rgba(47, 31, 18, 0.12);
+  color: rgba(35, 27, 22, 0.62);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.prop-applause {
+  top: 20px;
+  right: 22px;
+  padding: 8px 12px;
+  background: #ffef5e;
+  transform: rotate(4deg);
+}
+
+.prop-cue {
+  left: 10px;
+  bottom: 72px;
+  padding: 10px 12px;
+  transform: rotate(-5deg);
+}
+
+.prop-mug {
+  right: 16px;
+  bottom: 22px;
+  max-width: 150px;
+  padding: 10px;
+  background: #dff9ef;
+  transform: rotate(5deg);
+}
+
+.picker-panel {
+  position: relative;
+  width: 100%;
+  display: grid;
+  gap: 22px;
+}
+
+.topbar {
+  display: grid;
+  gap: 8px;
+}
+
+.eyebrow,
+.field-label,
+.result-kicker {
+  margin: 0;
+  color: var(--tomato);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 0;
+  font-size: clamp(2.4rem, 10vw, 5.7rem);
+  line-height: 0.92;
+  text-shadow: 3px 3px 0 rgba(255, 255, 255, 0.7);
+}
+
+.intro {
+  max-width: 37rem;
+  margin-bottom: 0;
+  color: #4e4038;
+  font-size: 1.04rem;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.controls {
+  border: 2px solid rgba(35, 27, 22, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 253, 247, 0.78);
+  box-shadow: 0 14px 36px rgba(47, 31, 18, 0.14);
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  backdrop-filter: blur(8px);
+}
+
+.show-field {
+  display: grid;
+  gap: 8px;
+}
+
+.select-wrap {
+  position: relative;
+}
+
+.select-wrap::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 11px;
+  height: 11px;
+  border-right: 3px solid var(--ink);
+  border-bottom: 3px solid var(--ink);
+  transform: translateY(-64%) rotate(45deg);
+  pointer-events: none;
+}
+
+.show-select {
+  width: 100%;
+  min-height: 54px;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  appearance: none;
+  background: var(--panel);
+  color: var(--ink);
+  padding: 0 42px 0 14px;
+  box-shadow: 5px 5px 0 rgba(35, 27, 22, 0.16);
+  font-weight: 900;
+}
+
+.filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+.text-button {
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  padding: 6px 0;
+  font-weight: 900;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.season-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(48px, 1fr));
+  gap: 8px;
+}
+
+.season-chip {
+  min-height: 42px;
+}
+
+.season-chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.season-chip span {
+  min-height: 44px;
+  border: 2px solid rgba(35, 27, 22, 0.22);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.78);
+  display: grid;
+  place-items: center;
+  padding: 8px 6px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 950;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.season-chip input:checked + span {
+  border-color: var(--ink);
+  background: var(--spotlight);
+  color: var(--ink);
+  box-shadow: 3px 3px 0 rgba(35, 27, 22, 0.16);
+}
+
+.pick-button {
+  width: 100%;
+  min-height: 64px;
+  margin-top: 4px;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--tomato), #ff8b37);
+  color: white;
+  display: grid;
+  place-items: center;
+  padding: 12px 18px;
+  box-shadow: 6px 6px 0 rgba(35, 27, 22, 0.2);
+  cursor: pointer;
+}
+
+.pick-button:disabled {
+  cursor: wait;
+  opacity: 0.86;
+}
+
+.button-main {
+  font-size: 1.08rem;
+  font-weight: 950;
+}
+
+.result-stage {
+  display: grid;
+}
+
+.episode-card {
+  position: relative;
+  min-height: 300px;
+  border: 3px solid var(--ink);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(255, 253, 247, 0.98)),
+    var(--panel);
+  padding: 18px;
+  box-shadow: var(--shadow), 8px 8px 0 rgba(35, 27, 22, 0.16);
+  display: grid;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.channel-screen {
+  position: relative;
+  min-height: 70px;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.12) 50%, rgba(0, 0, 0, 0.05) 50%) 0 0 / 100% 6px,
+    linear-gradient(135deg, #103c6b, #1f8ee7 50%, #bfefff);
+  display: grid;
+  place-items: center;
+  color: white;
+  overflow: hidden;
+}
+
+.scanline {
+  position: absolute;
+  inset: -80% 0 auto;
+  height: 46%;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.38), transparent);
+}
+
+.channel-status {
+  position: relative;
+  border-radius: 999px;
+  background: rgba(35, 27, 22, 0.76);
+  padding: 8px 12px;
+  font-size: 0.86rem;
+  font-weight: 950;
+  letter-spacing: 0;
+}
+
+.episode-content {
+  display: grid;
+  align-content: center;
+  gap: 10px;
+}
+
+.episode-card h2 {
+  margin-bottom: 0;
+  font-size: clamp(2.1rem, 9vw, 4.45rem);
+  line-height: 0.98;
+  overflow-wrap: anywhere;
+}
+
+.episode-meta {
+  width: fit-content;
+  max-width: 100%;
+  margin-bottom: 0;
+  border-radius: 999px;
+  background: #dff9ef;
+  color: var(--ink);
+  padding: 8px 12px;
+  font-size: 0.92rem;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.episode-description {
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+.episode-card.is-changing-channel {
+  animation: channelBump 0.2s steps(2, end) infinite;
+}
+
+.episode-card.is-changing-channel .channel-screen {
+  animation: screenFlicker 0.18s steps(2, end) infinite;
+}
+
+.episode-card.is-changing-channel .scanline {
+  animation: scanSweep 0.7s linear infinite;
+}
+
+@keyframes channelBump {
+  0% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(2px) rotate(0.2deg);
+  }
+
+  100% {
+    transform: translateX(-2px) rotate(-0.2deg);
+  }
+}
+
+@keyframes screenFlicker {
+  0% {
+    filter: saturate(1);
+  }
+
+  100% {
+    filter: saturate(1.65) brightness(1.08);
+  }
+}
+
+@keyframes scanSweep {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(320%);
+  }
+}
+
+@media (max-width: 420px) {
+  .app-shell {
+    padding: 16px;
+  }
+
+  .prop {
+    display: none;
+  }
+
+  .controls {
+    padding: 12px;
+  }
+
+  .episode-card {
+    min-height: 280px;
+    padding: 14px;
+  }
+}
+
+@media (min-width: 760px) {
+  .app-shell {
+    padding: 40px;
+  }
+
+  .picker-panel {
+    grid-template-columns: 0.9fr 1.1fr;
+    align-items: end;
+  }
+
+  .topbar,
+  .controls {
+    grid-column: 1;
+  }
+
+  .result-stage {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .episode-card {
+    min-height: 460px;
+    padding: 24px;
+  }
+
+  .channel-screen {
+    min-height: 96px;
+  }
+}
+
+</style>
+  </head>
+  <body>
+    <main class="app-shell">
+      <div class="set-dressing" aria-hidden="true">
+        <span class="prop prop-applause">APPLAUSE</span>
+        <span class="prop prop-cue">cue card: big laugh</span>
+        <span class="prop prop-mug">world's okayest break room mug</span>
+      </div>
+
+      <section class="picker-panel" aria-labelledby="app-title">
+        <div class="topbar">
+          <p class="eyebrow">Live from the comfort couch</p>
+          <h1 id="app-title">Sitcom Shuffle</h1>
+          <p class="intro">Pick a show, choose the seasons you are in the mood for, and let the remote find tonight's rerun.</p>
+        </div>
+
+        <div class="controls" aria-label="Episode picker controls">
+          <div class="show-field">
+            <label class="field-label" for="show-select">Now tuning</label>
+            <div class="select-wrap">
+              <select id="show-select" class="show-select"></select>
+            </div>
+          </div>
+
+          <div class="filter-header">
+            <p class="field-label">Seasons</p>
+            <button id="select-all-seasons" class="text-button" type="button">All seasons</button>
+          </div>
+          <div id="season-filters" class="season-filters" aria-label="Season filters"></div>
+
+          <button id="pick-button" class="pick-button" type="button">
+            <span class="button-main">Pick an episode</span>
+          </button>
+        </div>
+
+        <section class="result-stage" aria-live="polite" aria-label="Selected episode">
+          <article id="episode-card" class="episode-card">
+            <div class="channel-screen" aria-hidden="true">
+              <span class="scanline"></span>
+              <span id="channel-status" class="channel-status">ON AIR</span>
+            </div>
+            <div class="episode-content">
+              <p id="result-kicker" class="result-kicker">Cue the theme song</p>
+              <h2 id="episode-title">Ready to shuffle?</h2>
+              <p id="episode-meta" class="episode-meta">The Office (US) is loaded.</p>
+              <p id="episode-description" class="episode-description">Pick your seasons, then let the remote do the work.</p>
+            </div>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      window.EPISODE_CSV = "show,season,episode,title,description\nThe Office (US),1,1,Pilot,\nThe Office (US),1,2,Diversity Day,\nThe Office (US),1,3,Health Care,\nThe Office (US),1,4,The Alliance,\nThe Office (US),1,5,Basketball,\nThe Office (US),1,6,Hot Girl,\nThe Office (US),2,1,The Dundies,\nThe Office (US),2,2,Sexual Harassment,\nThe Office (US),2,3,Office Olympics,\nThe Office (US),2,4,The Fire,\nThe Office (US),2,5,Halloween,\nThe Office (US),2,6,The Fight,\nThe Office (US),2,7,The Client,\nThe Office (US),2,8,Performance Review,\nThe Office (US),2,9,E-Mail Surveillance,\nThe Office (US),2,10,Christmas Party,\nThe Office (US),2,11,Booze Cruise,\nThe Office (US),2,12,The Injury,\nThe Office (US),2,13,The Secret,\nThe Office (US),2,14,The Carpet,\nThe Office (US),2,15,Boys and Girls,\nThe Office (US),2,16,Valentine's Day,\nThe Office (US),2,17,Dwight's Speech,\nThe Office (US),2,18,Take Your Daughter to Work Day,\nThe Office (US),2,19,Michael's Birthday,\nThe Office (US),2,20,Drug Testing,\nThe Office (US),2,21,Conflict Resolution,\nThe Office (US),2,22,Casino Night,\nThe Office (US),3,1,Gay Witch Hunt,\nThe Office (US),3,2,The Convention,\nThe Office (US),3,3,The Coup,\nThe Office (US),3,4,Grief Counseling,\nThe Office (US),3,5,Initiation,\nThe Office (US),3,6,Diwali,\nThe Office (US),3,7,Branch Closing,\nThe Office (US),3,8,The Merger,\nThe Office (US),3,9,The Convict,\nThe Office (US),3,10,A Benihana Christmas (1),\nThe Office (US),3,11,A Benihana Christmas (2),\nThe Office (US),3,12,Back from Vacation,\nThe Office (US),3,13,Traveling Salesmen,\nThe Office (US),3,14,The Return,\nThe Office (US),3,15,Ben Franklin,\nThe Office (US),3,16,Phyllis' Wedding,\nThe Office (US),3,17,Business School,\nThe Office (US),3,18,Cocktails,\nThe Office (US),3,19,The Negotiation,\nThe Office (US),3,20,Safety Training,\nThe Office (US),3,21,Product Recall,\nThe Office (US),3,22,Women's Appreciation,\nThe Office (US),3,23,Beach Games,\nThe Office (US),3,24,The Job (1),\nThe Office (US),3,25,The Job (2),\nThe Office (US),4,1,Fun Run (1),\nThe Office (US),4,2,Fun Run (2),\nThe Office (US),4,3,Dunder Mifflin Infinity (1),\nThe Office (US),4,4,Dunder Mifflin Infinity (2),\nThe Office (US),4,5,Launch Party (1),\nThe Office (US),4,6,Launch Party (2),\nThe Office (US),4,7,Money (1),\nThe Office (US),4,8,Money (2),\nThe Office (US),4,9,Local Ad,\nThe Office (US),4,10,Branch Wars,\nThe Office (US),4,11,Survivor Man,\nThe Office (US),4,12,The Deposition,\nThe Office (US),4,13,Dinner Party,\nThe Office (US),4,14,Chair Model,\nThe Office (US),4,15,Night Out,\nThe Office (US),4,16,Did I Stutter?,\nThe Office (US),4,17,Job Fair,\nThe Office (US),4,18,\"Goodbye, Toby (1)\",\nThe Office (US),4,19,\"Goodbye, Toby (2)\",\nThe Office (US),5,1,Weight Loss (1),\nThe Office (US),5,2,Weight Loss (2),\nThe Office (US),5,3,Business Ethics,\nThe Office (US),5,4,Baby Shower,\nThe Office (US),5,5,Crime Aid,\nThe Office (US),5,6,Employee Transfer,\nThe Office (US),5,7,Customer Survey,\nThe Office (US),5,8,Business Trip,\nThe Office (US),5,9,Frame Toby,\nThe Office (US),5,10,The Surplus,\nThe Office (US),5,11,Moroccan Christmas,\nThe Office (US),5,12,The Duel,\nThe Office (US),5,13,Prince Family Paper,\nThe Office (US),5,14,Stress Relief (1),\nThe Office (US),5,15,Stress Relief (2),\nThe Office (US),5,16,Lecture Circuit (1),\nThe Office (US),5,17,Lecture Circuit (2),\nThe Office (US),5,18,Blood Drive,\nThe Office (US),5,19,Golden Ticket,\nThe Office (US),5,20,New Boss,\nThe Office (US),5,21,Two Weeks,\nThe Office (US),5,22,Dream Team,\nThe Office (US),5,23,The Michael Scott Paper Company,\nThe Office (US),5,24,Heavy Competition,\nThe Office (US),5,25,Broke,\nThe Office (US),5,26,Casual Friday,\nThe Office (US),5,27,Cafe Disco,\nThe Office (US),5,28,Company Picnic,\nThe Office (US),6,1,Gossip,\nThe Office (US),6,2,The Meeting,\nThe Office (US),6,3,The Promotion,\nThe Office (US),6,4,Niagara (1),\nThe Office (US),6,5,Niagara (2),\nThe Office (US),6,6,Mafia,\nThe Office (US),6,7,The Lover,\nThe Office (US),6,8,Koi Pond,\nThe Office (US),6,9,Double Date,\nThe Office (US),6,10,Murder,\nThe Office (US),6,11,Shareholder Meeting,\nThe Office (US),6,12,Scott's Tots,\nThe Office (US),6,13,Secret Santa,\nThe Office (US),6,14,The Banker,\nThe Office (US),6,15,Sabre,\nThe Office (US),6,16,The Manager and the Salesman,\nThe Office (US),6,17,The Delivery (1),\nThe Office (US),6,18,The Delivery (2),\nThe Office (US),6,19,St. Patrick's Day,\nThe Office (US),6,20,New Leads,\nThe Office (US),6,21,Happy Hour,\nThe Office (US),6,22,Secretary's Day,\nThe Office (US),6,23,Body Language,\nThe Office (US),6,24,The Cover-Up,\nThe Office (US),6,25,The Chump,\nThe Office (US),6,26,Whistleblower,\nThe Office (US),7,1,Nepotism,\nThe Office (US),7,2,Counseling,\nThe Office (US),7,3,Andy's Play,\nThe Office (US),7,4,Sex Ed,\nThe Office (US),7,5,The Sting,\nThe Office (US),7,6,Costume Contest,\nThe Office (US),7,7,Christening,\nThe Office (US),7,8,Viewing Party,\nThe Office (US),7,9,WUPHF.com,\nThe Office (US),7,10,China,\nThe Office (US),7,11,Classy Christmas (1),\nThe Office (US),7,12,Classy Christmas (2),\nThe Office (US),7,13,Ultimatum,\nThe Office (US),7,14,The Seminar,\nThe Office (US),7,15,The Search,\nThe Office (US),7,16,PDA,\nThe Office (US),7,17,Threat Level Midnight,\nThe Office (US),7,18,Todd Packer,\nThe Office (US),7,19,Garage Sale,\nThe Office (US),7,20,Training Day,\nThe Office (US),7,21,Michael's Last Dundies,\nThe Office (US),7,22,\"Goodbye, Michael (1)\",\nThe Office (US),7,23,\"Goodbye, Michael (2)\",\nThe Office (US),7,24,The Inner Circle,\nThe Office (US),7,25,\"Dwight K. Schrute, (Acting) Manager\",\nThe Office (US),7,26,Search Committee,\nThe Office (US),8,1,The List,\nThe Office (US),8,2,The Incentive,\nThe Office (US),8,3,Lotto,\nThe Office (US),8,4,Garden Party,\nThe Office (US),8,5,Spooked,\nThe Office (US),8,6,Doomsday,\nThe Office (US),8,7,Pam's Replacement,\nThe Office (US),8,8,Gettysburg,\nThe Office (US),8,9,Mrs. California,\nThe Office (US),8,10,Christmas Wishes,\nThe Office (US),8,11,Trivia,\nThe Office (US),8,12,Pool Party,\nThe Office (US),8,13,Jury Duty,\nThe Office (US),8,14,Special Project,\nThe Office (US),8,15,Tallahassee,\nThe Office (US),8,16,After Hours,\nThe Office (US),8,17,Test the Store,\nThe Office (US),8,18,Last Day in Florida,\nThe Office (US),8,19,Get the Girl,\nThe Office (US),8,20,Welcome Party,\nThe Office (US),8,21,Angry Andy,\nThe Office (US),8,22,Fundraiser,\nThe Office (US),8,23,Turf War,\nThe Office (US),8,24,Free Family Portrait Studio,\nThe Office (US),9,1,The New Guys,\nThe Office (US),9,2,Roy's Wedding,\nThe Office (US),9,3,Andy's Ancestry,\nThe Office (US),9,4,Work Bus,\nThe Office (US),9,5,Here Comes Treble,\nThe Office (US),9,6,The Boat,\nThe Office (US),9,7,The Whale,\nThe Office (US),9,8,The Target,\nThe Office (US),9,9,Dwight Christmas,\nThe Office (US),9,10,Lice,\nThe Office (US),9,11,Suit Warehouse,\nThe Office (US),9,12,Customer Loyalty,\nThe Office (US),9,13,Junior Salesman,\nThe Office (US),9,14,Vandalism,\nThe Office (US),9,15,Couples Discount,\nThe Office (US),9,16,Moving On,\nThe Office (US),9,17,The Farm,\nThe Office (US),9,18,Promos,\nThe Office (US),9,19,Stairmageddon,\nThe Office (US),9,20,Paper Airplane,\nThe Office (US),9,21,Livin' the Dream,\nThe Office (US),9,22,A.A.R.M. (1),\nThe Office (US),9,23,A.A.R.M. (2),\nThe Office (US),9,24,Finale (1),\nThe Office (US),9,25,Finale (2),\nParks and Recreation,1,1,Pilot,\nParks and Recreation,1,2,Canvassing,\nParks and Recreation,1,3,The Reporter,\nParks and Recreation,1,4,Boys' Club,\nParks and Recreation,1,5,The Banquet,\nParks and Recreation,1,6,Rock Show,\nParks and Recreation,2,1,Pawnee Zoo,\nParks and Recreation,2,2,The Stakeout,\nParks and Recreation,2,3,Beauty Pageant,\nParks and Recreation,2,4,Practice Date,\nParks and Recreation,2,5,Sister City,\nParks and Recreation,2,6,Kaboom,\nParks and Recreation,2,7,Greg Pikitis,\nParks and Recreation,2,8,Ron and Tammy,\nParks and Recreation,2,9,The Camel,\nParks and Recreation,2,10,Hunting Trip,\nParks and Recreation,2,11,Tom's Divorce,\nParks and Recreation,2,12,Christmas Scandal,\nParks and Recreation,2,13,The Set Up,\nParks and Recreation,2,14,Leslie's House,\nParks and Recreation,2,15,Sweetums,\nParks and Recreation,2,16,Galentine's Day,\nParks and Recreation,2,17,Woman of the Year,\nParks and Recreation,2,18,The Possum,\nParks and Recreation,2,19,Park Safety,\nParks and Recreation,2,20,Summer Catalog,\nParks and Recreation,2,21,94 Meetings,\nParks and Recreation,2,22,Telethon,\nParks and Recreation,2,23,The Master Plan,\nParks and Recreation,2,24,Freddy Spaghetti,\nParks and Recreation,3,1,Go Big or Go Home,\nParks and Recreation,3,2,Flu Season,\nParks and Recreation,3,3,Time Capsule,\nParks and Recreation,3,4,Ron & Tammy: Part Two,\nParks and Recreation,3,5,Media Blitz,\nParks and Recreation,3,6,Indianapolis,\nParks and Recreation,3,7,Harvest Festival,\nParks and Recreation,3,8,Camping,\nParks and Recreation,3,9,Andy and April's Fancy Party,\nParks and Recreation,3,10,Soulmates,\nParks and Recreation,3,11,Jerry's Painting,\nParks and Recreation,3,12,Eagleton,\nParks and Recreation,3,13,The Fight,\nParks and Recreation,3,14,Road Trip,\nParks and Recreation,3,15,The Bubble,\nParks and Recreation,3,16,Li'l Sebastian,\nParks and Recreation,4,1,I'm Leslie Knope,\nParks and Recreation,4,2,Ron and Tammys,\nParks and Recreation,4,3,Born & Raised,\nParks and Recreation,4,4,Pawnee Rangers,\nParks and Recreation,4,5,Meet 'n' Greet,\nParks and Recreation,4,6,End of the World,\nParks and Recreation,4,7,The Treaty,\nParks and Recreation,4,8,Smallest Park,\nParks and Recreation,4,9,The Trial of Leslie Knope,\nParks and Recreation,4,10,Citizen Knope,\nParks and Recreation,4,11,The Comeback Kid,\nParks and Recreation,4,12,Campaign Ad,\nParks and Recreation,4,13,Bowling for Votes,\nParks and Recreation,4,14,Operation Ann,\nParks and Recreation,4,15,Dave Returns,\nParks and Recreation,4,16,Sweet Sixteen,\nParks and Recreation,4,17,Campaign Shake-Up,\nParks and Recreation,4,18,Lucky,\nParks and Recreation,4,19,Live Ammo,\nParks and Recreation,4,20,The Debate,\nParks and Recreation,4,21,Bus Tour,\nParks and Recreation,4,22,\"Win, Lose, or Draw\",\nParks and Recreation,5,1,Ms. Knope Goes to Washington,\nParks and Recreation,5,2,Soda Tax,\nParks and Recreation,5,3,How a Bill Becomes a Law,\nParks and Recreation,5,4,Sex Education,\nParks and Recreation,5,5,Halloween Surprise,\nParks and Recreation,5,6,Ben's Parents,\nParks and Recreation,5,7,Leslie vs. April,\nParks and Recreation,5,8,Pawnee Commons,\nParks and Recreation,5,9,Ron and Diane,\nParks and Recreation,5,10,Two Parties,\nParks and Recreation,5,11,Women in Garbage,\nParks and Recreation,5,12,Ann's Decision,\nParks and Recreation,5,13,Emergency Response,\nParks and Recreation,5,14,Leslie and Ben,\nParks and Recreation,5,15,Correspondents' Lunch,\nParks and Recreation,5,16,Bailout,\nParks and Recreation,5,17,Partridge,\nParks and Recreation,5,18,Animal Control,\nParks and Recreation,5,19,Article Two,\nParks and Recreation,5,20,Jerry's Retirement,\nParks and Recreation,5,21,Swing Vote,\nParks and Recreation,5,22,Are You Better Off?,\nParks and Recreation,6,1,London (1),\nParks and Recreation,6,2,London (2),\nParks and Recreation,6,3,The Pawnee-Eagleton Tip Off Classic,\nParks and Recreation,6,4,Doppelgangers,\nParks and Recreation,6,5,Gin It Up!,\nParks and Recreation,6,6,Filibuster,\nParks and Recreation,6,7,Recall Vote,\nParks and Recreation,6,8,Fluoride,\nParks and Recreation,6,9,The Cones of Dunshire,\nParks and Recreation,6,10,Second Chunce,\nParks and Recreation,6,11,New Beginnings,\nParks and Recreation,6,12,Farmers Market,\nParks and Recreation,6,13,Ann and Chris,\nParks and Recreation,6,14,Anniversaries,\nParks and Recreation,6,15,The Wall,\nParks and Recreation,6,16,New Slogan,\nParks and Recreation,6,17,Galentine's Day,\nParks and Recreation,6,18,Prom,\nParks and Recreation,6,19,Flu Season 2,\nParks and Recreation,6,20,\"One in 8,000\",\nParks and Recreation,6,21,Moving Up (1),\nParks and Recreation,6,22,Moving Up (2),\nParks and Recreation,7,1,2017,\nParks and Recreation,7,2,Ron and Jammy,\nParks and Recreation,7,3,William Henry Harrison,\nParks and Recreation,7,4,Leslie and Ron,\nParks and Recreation,7,5,Gryzzlbox,\nParks and Recreation,7,6,Save JJ's,\nParks and Recreation,7,7,Donna and Joe,\nParks and Recreation,7,8,Ms. Ludgate-Dwyer Goes to Washington,\nParks and Recreation,7,9,Pie-Mary,\nParks and Recreation,7,10,The Johnny Karate Super Awesome Musical Explosion Show,\nParks and Recreation,7,11,Two Funerals,\nParks and Recreation,7,12,One Last Ride (1),\nParks and Recreation,7,13,One Last Ride (2),\nFriends,1,1,Pilot,\nFriends,1,2,The One with the Sonogram at the End,\nFriends,1,3,The One with the Thumb,\nFriends,1,4,The One with George Stephanopoulos,\nFriends,1,5,The One with the East German Laundry Detergent,\nFriends,1,6,The One with the Butt,\nFriends,1,7,The One with the Blackout,\nFriends,1,8,The One Where Nana Dies Twice,\nFriends,1,9,The One Where Underdog Gets Away,\nFriends,1,10,The One with the Monkey,\nFriends,1,11,The One with Mrs. Bing,\nFriends,1,12,The One with The Dozen Lasagnas,\nFriends,1,13,The One with the Boobies,\nFriends,1,14,The One with the Candy Hearts,\nFriends,1,15,The One with the Stoned Guy,\nFriends,1,16,The One with Two Parts (1),\nFriends,1,17,The One with Two Parts (2),\nFriends,1,18,The One with All the Poker,\nFriends,1,19,The One Where the Monkey Gets Away,\nFriends,1,20,The One with the Evil Orthodontist,\nFriends,1,21,The One with the Fake Monica,\nFriends,1,22,The One with the Ick Factor,\nFriends,1,23,The One with the Birth,\nFriends,1,24,The One Where Rachel Finds Out,\nFriends,2,1,The One with Ross' New Girlfriend,\nFriends,2,2,The One with the Breast Milk,\nFriends,2,3,The One Where Heckles Dies,\nFriends,2,4,The One with Phoebe's Husband,\nFriends,2,5,The One with Five Steaks and an Eggplant,\nFriends,2,6,The One with the Baby on the Bus,\nFriends,2,7,The One Where Ross Finds Out,\nFriends,2,8,The One with the List,\nFriends,2,9,The One with Phoebe's Dad,\nFriends,2,10,The One with Russ,\nFriends,2,11,The One with the Lesbian Wedding,\nFriends,2,12,The One After the Super Bowl (1),\nFriends,2,13,The One After the Super Bowl (2),\nFriends,2,14,The One with the Prom Video,\nFriends,2,15,The One Where Ross and Rachel...You Know,\nFriends,2,16,The One Where Joey Moves Out,\nFriends,2,17,The One Where Eddie Moves In,\nFriends,2,18,The One Where Dr. Ramoray Dies,\nFriends,2,19,The One Where Eddie Won't Go,\nFriends,2,20,The One Where Old Yeller Dies,\nFriends,2,21,The One with the Bullies,\nFriends,2,22,The One with the Two Parties,\nFriends,2,23,The One with the Chicken Pox,\nFriends,2,24,The One with Barry and Mindy's Wedding,\nFriends,3,1,The One with the Princess Leia Fantasy,\nFriends,3,2,The One Where No One's Ready,\nFriends,3,3,The One with the Jam,\nFriends,3,4,The One with the Metaphorical Tunnel,\nFriends,3,5,The One with Frank Jr.,\nFriends,3,6,The One with the Flashback,\nFriends,3,7,The One with the Race Car Bed,\nFriends,3,8,The One with the Giant Poking Device,\nFriends,3,9,The One with the Football,\nFriends,3,10,The One Where Rachel Quits,\nFriends,3,11,The One Where Chandler Can't Remember Which Sister,\nFriends,3,12,The One with All the Jealousy,\nFriends,3,13,The One Where Monica and Richard Are Just Friends,\nFriends,3,14,The One with Phoebe's Ex-Partner,\nFriends,3,15,The One Where Ross and Rachel Take a Break,\nFriends,3,16,The One with the Morning After,\nFriends,3,17,The One Without the Ski Trip,\nFriends,3,18,The One with the Hypnosis Tape,\nFriends,3,19,The One with the Tiny T-Shirt,\nFriends,3,20,The One with the Dollhouse,\nFriends,3,21,The One with a Chick and a Duck,\nFriends,3,22,The One with the Screamer,\nFriends,3,23,The One with Ross' Thing,\nFriends,3,24,The One with the Ultimate Fighting Champion,\nFriends,3,25,The One at the Beach,\nFriends,4,1,The One with the Jellyfish,\nFriends,4,2,The One with the Cat,\nFriends,4,3,The One with the Cuffs,\nFriends,4,4,The One with the Ballroom Dancing,\nFriends,4,5,The One with Joey's New Girlfriend,\nFriends,4,6,The One with the Dirty Girl,\nFriends,4,7,The One Where Chandler Crosses the Line,\nFriends,4,8,The One with Chandler in a Box,\nFriends,4,9,The One Where They're Going to Party!,\nFriends,4,10,The One with the Girl from Poughkeepsie,\nFriends,4,11,The One with Phoebe's Uterus,\nFriends,4,12,The One with the Embryos,\nFriends,4,13,The One with Rachel's Crush,\nFriends,4,14,The One with Joey's Dirty Day,\nFriends,4,15,The One with All the Rugby,\nFriends,4,16,The One with the Fake Party,\nFriends,4,17,The One with the Free Porn,\nFriends,4,18,The One with Rachel's New Dress,\nFriends,4,19,The One with All the Haste,\nFriends,4,20,The One with All the Wedding Dresses,\nFriends,4,21,The One with the Invitation,\nFriends,4,22,The One with the Worst Best Man Ever,\nFriends,4,23,The One with Ross' Wedding (1),\nFriends,4,24,The One with Ross' Wedding (2),\nFriends,5,1,The One After Ross Says Rachel,\nFriends,5,2,The One with All the Kissing,\nFriends,5,3,The One Hundredth,\nFriends,5,4,The One Where Phoebe Hates PBS,\nFriends,5,5,The One with the Kips,\nFriends,5,6,The One with the Yeti,\nFriends,5,7,The One Where Ross Moves In,\nFriends,5,8,The One with the Thanksgiving Flashbacks,\nFriends,5,9,The One with Ross' Sandwich,\nFriends,5,10,The One with the Inappropriate Sister,\nFriends,5,11,The One with All the Resolutions,\nFriends,5,12,The One with Chandler's Work Laugh,\nFriends,5,13,The One with Joey's Bag,\nFriends,5,14,The One Where Everybody Finds Out,\nFriends,5,15,The One with the Girl Who Hits Joey,\nFriends,5,16,The One with the Cop,\nFriends,5,17,The One with Rachel's Inadvertent Kiss,\nFriends,5,18,The One Where Rachel Smokes,\nFriends,5,19,The One Where Ross Can't Flirt,\nFriends,5,20,The One with the Ride-Along,\nFriends,5,21,The One with the Ball,\nFriends,5,22,The One with Joey's Big Break,\nFriends,5,23,The One in Vegas (1),\nFriends,5,24,The One in Vegas (2),\nFriends,6,1,The One After Vegas,\nFriends,6,2,The One Where Ross Hugs Rachel,\nFriends,6,3,The One with Ross' Denial,\nFriends,6,4,The One Where Joey Loses His Insurance,\nFriends,6,5,The One with Joey's Porsche,\nFriends,6,6,The One on the Last Night,\nFriends,6,7,The One Where Phoebe Runs,\nFriends,6,8,The One with Ross's Teeth,\nFriends,6,9,The One Where Ross Got High,\nFriends,6,10,The One with the Routine,\nFriends,6,11,The One with the Apothecary Table,\nFriends,6,12,The One with the Joke,\nFriends,6,13,The One with Rachel's Sister,\nFriends,6,14,The One Where Chandler Can't Cry,\nFriends,6,15,The One That Could Have Been (1),\nFriends,6,16,The One That Could Have Been (2),\nFriends,6,17,The One with Unagi,\nFriends,6,18,The One Where Ross Dates a Student,\nFriends,6,19,The One with Joey's Fridge,\nFriends,6,20,The One with Mac and C.H.E.E.S.E.,\nFriends,6,21,The One Where Ross Meets Elizabeth's Dad,\nFriends,6,22,The One Where Paul's the Man,\nFriends,6,23,The One with the Ring,\nFriends,6,24,The One with the Proposal (1),\nFriends,6,25,The One with the Proposal (2),\nFriends,7,1,The One with Monica's Thunder,\nFriends,7,2,The One with Rachel's Book,\nFriends,7,3,The One with Phoebe's Cookies,\nFriends,7,4,The One with Rachel's Assistant,\nFriends,7,5,The One with the Engagement Picture,\nFriends,7,6,The One with the Nap Partners,\nFriends,7,7,The One with Ross' Library Book,\nFriends,7,8,The One Where Chandler Doesn't Like Dogs,\nFriends,7,9,The One with All the Candy,\nFriends,7,10,The One with the Holiday Armadillo,\nFriends,7,11,The One with All the Cheesecakes,\nFriends,7,12,The One Where They're Up All Night,\nFriends,7,13,The One Where Rosita Dies,\nFriends,7,14,The One Where They All Turn Thirty,\nFriends,7,15,The One with Joey's New Brain,\nFriends,7,16,The One with the Truth About London,\nFriends,7,17,The One with the Cheap Wedding Dress,\nFriends,7,18,The One with Joey's Award,\nFriends,7,19,The One with Ross and Monica's Cousin,\nFriends,7,20,The One with Rachel's Big Kiss,\nFriends,7,21,The One with the Vows,\nFriends,7,22,The One with Chandler's Dad,\nFriends,7,23,The One with Monica and Chandler's Wedding (1),\nFriends,7,24,The One with Monica and Chandler's Wedding (2),\nFriends,8,1,The One After 'I Do',\nFriends,8,2,The One with the Red Sweater,\nFriends,8,3,The One Where Rachel Tells...,\nFriends,8,4,The One with the Videotape,\nFriends,8,5,The One with Rachel's Date,\nFriends,8,6,The One with the Halloween Party,\nFriends,8,7,The One with the Stain,\nFriends,8,8,The One with the Stripper,\nFriends,8,9,The One with the Rumor,\nFriends,8,10,The One with Monica's Boots,\nFriends,8,11,The One with Ross's Step Forward,\nFriends,8,12,The One Where Joey Dates Rachel,\nFriends,8,13,The One Where Chandler Takes a Bath,\nFriends,8,14,The One with the Secret Closet,\nFriends,8,15,The One with the Birthing Video,\nFriends,8,16,The One Where Joey Tells Rachel,\nFriends,8,17,The One with the Tea Leaves,\nFriends,8,18,The One in Massapequa,\nFriends,8,19,The One with Joey's Interview,\nFriends,8,20,The One with the Baby Shower,\nFriends,8,21,The One with the Cooking Class,\nFriends,8,22,The One Where Rachel Is Late,\nFriends,8,23,The One Where Rachel Has a Baby (1),\nFriends,8,24,The One Where Rachel Has a Baby (2),\nFriends,9,1,The One Where No One Proposes,\nFriends,9,2,The One Where Emma Cries,\nFriends,9,3,The One with the Pediatrician,\nFriends,9,4,The One with the Sharks,\nFriends,9,5,The One with Phoebe's Birthday Dinner,\nFriends,9,6,The One with the Male Nanny,\nFriends,9,7,The One with Ross' Inappropriate Song,\nFriends,9,8,The One with Rachel's Other Sister,\nFriends,9,9,The One with Rachel's Phone Number,\nFriends,9,10,The One with Christmas in Tulsa,\nFriends,9,11,The One Where Rachel Goes Back to Work,\nFriends,9,12,The One with Phoebe's Rats,\nFriends,9,13,The One Where Monica Sings,\nFriends,9,14,The One with the Blind Dates,\nFriends,9,15,The One with the Mugging,\nFriends,9,16,The One with the Boob Job,\nFriends,9,17,The One with the Memorial Service,\nFriends,9,18,The One with the Lottery,\nFriends,9,19,The One with Rachel's Dream,\nFriends,9,20,The One with the Soap Opera Party,\nFriends,9,21,The One with the Fertility Test,\nFriends,9,22,The One with the Donor,\nFriends,9,23,The One in Barbados (1),\nFriends,9,24,The One in Barbados (2),\nFriends,10,1,The One After Joey and Rachel Kiss,\nFriends,10,2,The One Where Ross Is Fine,\nFriends,10,3,The One with Ross' Tan,\nFriends,10,4,The One with the Cake,\nFriends,10,5,The One Where Rachel's Sister Babysits,\nFriends,10,6,The One with Ross's Grant,\nFriends,10,7,The One with the Home Study,\nFriends,10,8,The One with the Late Thanksgiving,\nFriends,10,9,The One with the Birth Mother,\nFriends,10,10,The One Where Chandler Gets Caught,\nFriends,10,11,The One Where the Stripper Cries,\nFriends,10,12,The One with Phoebe's Wedding,\nFriends,10,13,The One Where Joey Speaks French,\nFriends,10,14,The One with Princess Consuela,\nFriends,10,15,The One Where Estelle Dies,\nFriends,10,16,The One with Rachel's Going Away Party,\nFriends,10,17,The Last One (1),\nFriends,10,18,The Last One (2),\nSeinfeld,1,1,The Seinfeld Chronicles,\nSeinfeld,1,2,The Stake Out,\nSeinfeld,1,3,The Robbery,\nSeinfeld,1,4,Male Unbonding,\nSeinfeld,1,5,The Stock Tip,\nSeinfeld,2,1,The Ex-Girlfriend,\nSeinfeld,2,2,The Pony Remark,\nSeinfeld,2,3,The Jacket,\nSeinfeld,2,4,The Phone Message,\nSeinfeld,2,5,The Apartment,\nSeinfeld,2,6,The Statue,\nSeinfeld,2,7,The Revenge,\nSeinfeld,2,8,The Heart Attack,\nSeinfeld,2,9,The Deal,\nSeinfeld,2,10,The Baby Shower,\nSeinfeld,2,11,The Chinese Restaurant,\nSeinfeld,2,12,The Busboy,\nSeinfeld,3,1,The Note,\nSeinfeld,3,2,The Truth,\nSeinfeld,3,3,The Pen,\nSeinfeld,3,4,The Dog,\nSeinfeld,3,5,The Library,\nSeinfeld,3,6,The Parking Garage,\nSeinfeld,3,7,The Caf�,\nSeinfeld,3,8,The Tape,\nSeinfeld,3,9,The Nose Job,\nSeinfeld,3,10,The Stranded,\nSeinfeld,3,11,The Alternate Side,\nSeinfeld,3,12,The Red Dot,\nSeinfeld,3,13,The Subway,\nSeinfeld,3,14,The Pez Dispenser,\nSeinfeld,3,15,The Suicide,\nSeinfeld,3,16,The Fix-Up,\nSeinfeld,3,17,The Boyfriend (1),\nSeinfeld,3,18,The Boyfriend (2),\nSeinfeld,3,19,The Limo,\nSeinfeld,3,20,The Good Samaritan,\nSeinfeld,3,21,The Letter,\nSeinfeld,3,22,The Parking Space,\nSeinfeld,3,23,The Keys,\nSeinfeld,4,1,The Trip (1),\nSeinfeld,4,2,The Trip (2),\nSeinfeld,4,3,The Pitch,\nSeinfeld,4,4,The Ticket,\nSeinfeld,4,5,The Wallet,\nSeinfeld,4,6,The Watch,\nSeinfeld,4,7,The Bubble Boy,\nSeinfeld,4,8,The Cheever Letters,\nSeinfeld,4,9,The Opera,\nSeinfeld,4,10,The Virgin,\nSeinfeld,4,11,The Contest,\nSeinfeld,4,12,The Airport,\nSeinfeld,4,13,The Pick,\nSeinfeld,4,14,The Movie,\nSeinfeld,4,15,The Visa,\nSeinfeld,4,16,The Shoes,\nSeinfeld,4,17,The Outing,\nSeinfeld,4,18,The Old Man,\nSeinfeld,4,19,The Implant,\nSeinfeld,4,20,The Junior Mint,\nSeinfeld,4,21,The Smelly Car,\nSeinfeld,4,22,The Handicap Spot,\nSeinfeld,4,23,The Pilot (1),\nSeinfeld,4,24,The Pilot (2),\nSeinfeld,5,1,The Mango,\nSeinfeld,5,2,The Puffy Shirt,\nSeinfeld,5,3,The Glasses,\nSeinfeld,5,4,The Sniffing Accountant,\nSeinfeld,5,5,The Bris,\nSeinfeld,5,6,The Lip Reader,\nSeinfeld,5,7,The Non-Fat Yogurt,\nSeinfeld,5,8,The Barber,\nSeinfeld,5,9,The Masseuse,\nSeinfeld,5,10,The Cigar Store Indian,\nSeinfeld,5,11,The Conversion,\nSeinfeld,5,12,The Stall,\nSeinfeld,5,13,The Dinner Party,\nSeinfeld,5,14,The Marine Biologist,\nSeinfeld,5,15,The Pie,\nSeinfeld,5,16,The Stand-In,\nSeinfeld,5,17,The Wife,\nSeinfeld,5,18,The Raincoats (1),\nSeinfeld,5,19,The Raincoats (2),\nSeinfeld,5,20,The Fire,\nSeinfeld,5,21,The Hamptons,\nSeinfeld,5,22,The Opposite,\nSeinfeld,6,1,The Chaperone,\nSeinfeld,6,2,The Big Salad,\nSeinfeld,6,3,The Pledge Drive,\nSeinfeld,6,4,The Chinese Woman,\nSeinfeld,6,5,The Couch,\nSeinfeld,6,6,The Gymnast,\nSeinfeld,6,7,The Soup,\nSeinfeld,6,8,The Mom & Pop Store,\nSeinfeld,6,9,The Secretary,\nSeinfeld,6,10,The Race,\nSeinfeld,6,11,The Switch,\nSeinfeld,6,12,The Label Maker,\nSeinfeld,6,13,The Scofflaw,\nSeinfeld,6,14,The Highlights of 100 (1),\nSeinfeld,6,15,The Highlights of 100 (2),\nSeinfeld,6,16,The Beard,\nSeinfeld,6,17,The Kiss Hello,\nSeinfeld,6,18,The Doorman,\nSeinfeld,6,19,The Jimmy,\nSeinfeld,6,20,The Doodle,\nSeinfeld,6,21,The Fusilli Jerry,\nSeinfeld,6,22,The Diplomat's Club,\nSeinfeld,6,23,The Face Painter,\nSeinfeld,6,24,The Understudy,\nSeinfeld,7,1,The Engagement,\nSeinfeld,7,2,The Postponement,\nSeinfeld,7,3,The Maestro,\nSeinfeld,7,4,The Wink,\nSeinfeld,7,5,The Hot Tub,\nSeinfeld,7,6,The Soup Nazi,\nSeinfeld,7,7,The Secret Code,\nSeinfeld,7,8,The Pool Guy,\nSeinfeld,7,9,The Sponge,\nSeinfeld,7,10,The Gum,\nSeinfeld,7,11,The Rye,\nSeinfeld,7,12,The Caddy,\nSeinfeld,7,13,The Seven,\nSeinfeld,7,14,The Cadillac (1),\nSeinfeld,7,15,The Cadillac (2),\nSeinfeld,7,16,The Shower Head,\nSeinfeld,7,17,The Doll,\nSeinfeld,7,18,The Friars Club,\nSeinfeld,7,19,The Wig Master,\nSeinfeld,7,20,The Calzone,\nSeinfeld,7,21,The Bottle Deposit (1),\nSeinfeld,7,22,The Bottle Deposit (2),\nSeinfeld,7,23,The Wait Out,\nSeinfeld,7,24,The Invitations,\nSeinfeld,8,1,The Foundation,\nSeinfeld,8,2,The Soul Mate,\nSeinfeld,8,3,The Bizarro Jerry,\nSeinfeld,8,4,The Little Kicks,\nSeinfeld,8,5,The Package,\nSeinfeld,8,6,The Fatigues,\nSeinfeld,8,7,The Checks,\nSeinfeld,8,8,The Chicken Roaster,\nSeinfeld,8,9,The Abstinence,\nSeinfeld,8,10,The Andrea Doria,\nSeinfeld,8,11,The Little Jerry,\nSeinfeld,8,12,The Money,\nSeinfeld,8,13,The Comeback,\nSeinfeld,8,14,The Van Buren Boys,\nSeinfeld,8,15,The Susie,\nSeinfeld,8,16,The Pothole,\nSeinfeld,8,17,The English Patient,\nSeinfeld,8,18,The Nap,\nSeinfeld,8,19,The Yada Yada,\nSeinfeld,8,20,The Millennium,\nSeinfeld,8,21,The Muffin Tops,\nSeinfeld,8,22,The Summer of George,\nSeinfeld,9,1,The Butter Shave,\nSeinfeld,9,2,The Voice,\nSeinfeld,9,3,The Serenity Now,\nSeinfeld,9,4,The Blood,\nSeinfeld,9,5,The Junk Mail,\nSeinfeld,9,6,The Merv Griffin Show,\nSeinfeld,9,7,The Slicer,\nSeinfeld,9,8,The Betrayal,\nSeinfeld,9,9,The Apology,\nSeinfeld,9,10,The Strike,\nSeinfeld,9,11,The Dealership,\nSeinfeld,9,12,The Reverse Peephole,\nSeinfeld,9,13,The Cartoon,\nSeinfeld,9,14,The Strongbox,\nSeinfeld,9,15,The Wizard,\nSeinfeld,9,16,The Burning,\nSeinfeld,9,17,The Bookstore,\nSeinfeld,9,18,The Frogger,\nSeinfeld,9,19,The Maid,\nSeinfeld,9,20,The Puerto Rican Day,\nSeinfeld,9,21,The Chronicle (1),\nSeinfeld,9,22,The Chronicle (2),\nSeinfeld,9,23,The Finale (1),\nSeinfeld,9,24,The Finale (2),\n";
+    </script>
+    <script>
+const embeddedCsv = window.EPISODE_CSV;
+
+const elements = {
+  showSelect: document.querySelector("#show-select"),
+  seasonFilters: document.querySelector("#season-filters"),
+  selectAllSeasons: document.querySelector("#select-all-seasons"),
+  pickButton: document.querySelector("#pick-button"),
+  episodeCard: document.querySelector("#episode-card"),
+  channelStatus: document.querySelector("#channel-status"),
+  resultKicker: document.querySelector("#result-kicker"),
+  episodeTitle: document.querySelector("#episode-title"),
+  episodeMeta: document.querySelector("#episode-meta"),
+  episodeDescription: document.querySelector("#episode-description")
+};
+
+let episodes = [];
+let activeShow = "";
+let activeSeasons = new Set();
+let spinTimer = null;
+
+const channelPhrases = [
+  "Switching inputs...",
+  "Finding the right rerun...",
+  "Checking the studio feed...",
+  "Cueing laugh track...",
+  "Adjusting rabbit ears...",
+  "Calling places...",
+  "Rolling tape..."
+];
+
+init();
+
+async function init() {
+  try {
+    const csvText = embeddedCsv || await fetchCsv();
+    episodes = parseCsv(csvText);
+    setupShowSelect();
+    renderSeasonFilters();
+    elements.pickButton.addEventListener("click", pickEpisode);
+    elements.showSelect.addEventListener("change", handleShowChange);
+    elements.selectAllSeasons.addEventListener("click", selectAllVisibleSeasons);
+  } catch (error) {
+    showError("The episode data could not be loaded.");
+    console.error(error);
+  }
+}
+
+async function fetchCsv() {
+  const response = await fetch("data/episodes.csv");
+
+  if (!response.ok) {
+    throw new Error(`CSV request failed: ${response.status}`);
+  }
+
+  return response.text();
+}
+
+function setupShowSelect() {
+  const shows = unique(episodes.map((episode) => episode.show));
+  activeShow = shows[0] || "";
+
+  elements.showSelect.innerHTML = shows
+    .map((show) => `<option value="${escapeHtml(show)}">${escapeHtml(show)}</option>`)
+    .join("");
+
+  resetResultForShow();
+}
+
+function handleShowChange() {
+  activeShow = elements.showSelect.value;
+  renderSeasonFilters();
+  resetResultForShow();
+}
+
+function renderSeasonFilters() {
+  const seasons = getVisibleSeasons();
+  activeSeasons = new Set(seasons);
+
+  elements.seasonFilters.innerHTML = seasons
+    .map((season) => {
+      const label = `S${season}`;
+      return `
+        <label class="season-chip">
+          <input type="checkbox" value="${season}" checked>
+          <span aria-label="Season ${season}">${label}</span>
+        </label>
+      `;
+    })
+    .join("");
+
+  elements.seasonFilters.querySelectorAll("input").forEach((input) => {
+    input.addEventListener("change", updateActiveSeasons);
+  });
+}
+
+function selectAllVisibleSeasons() {
+  elements.seasonFilters.querySelectorAll("input").forEach((input) => {
+    input.checked = true;
+  });
+  updateActiveSeasons();
+}
+
+function updateActiveSeasons() {
+  activeSeasons = new Set(
+    Array.from(elements.seasonFilters.querySelectorAll("input:checked"))
+      .map((input) => Number(input.value))
+  );
+}
+
+function pickEpisode() {
+  const candidates = getCandidateEpisodes();
+
+  if (!candidates.length) {
+    showNoSeasonState();
+    return;
+  }
+
+  elements.pickButton.disabled = true;
+  elements.episodeCard.classList.add("is-changing-channel");
+  elements.resultKicker.textContent = randomFrom(channelPhrases);
+  elements.channelStatus.textContent = "CH ??.?";
+
+  let ticks = 0;
+  const maxTicks = 22;
+
+  clearInterval(spinTimer);
+  spinTimer = setInterval(() => {
+    const preview = randomFrom(candidates);
+    renderEpisode(preview, randomFrom(channelPhrases));
+    elements.channelStatus.textContent = `CH ${preview.season}.${preview.episode}`;
+    ticks += 1;
+
+    if (ticks >= maxTicks) {
+      clearInterval(spinTimer);
+      const finalPick = randomFrom(candidates);
+      renderEpisode(finalPick, "Now airing");
+      elements.channelStatus.textContent = "ON AIR";
+      elements.episodeCard.classList.remove("is-changing-channel");
+      elements.pickButton.disabled = false;
+    }
+  }, 95);
+}
+
+function renderEpisode(episode, kicker) {
+  elements.resultKicker.textContent = kicker;
+  elements.channelStatus.textContent = "ON AIR";
+  elements.episodeTitle.textContent = episode.title;
+  elements.episodeMeta.textContent = `${episode.show} - Season ${episode.season}, Episode ${episode.episode}`;
+  elements.episodeDescription.textContent = episode.description || "";
+  elements.episodeDescription.hidden = !episode.description;
+}
+
+function resetResultForShow() {
+  elements.resultKicker.textContent = "Cue the theme song";
+  elements.channelStatus.textContent = "ON AIR";
+  elements.episodeTitle.textContent = "Ready to shuffle?";
+  elements.episodeMeta.textContent = `${activeShow} is loaded.`;
+  elements.episodeDescription.hidden = false;
+  elements.episodeDescription.textContent = "Pick your seasons, then let the remote do the work.";
+}
+
+function showError(message) {
+  elements.resultKicker.textContent = "Small snag";
+  elements.episodeTitle.textContent = message;
+  elements.episodeMeta.textContent = "The app is still okay.";
+  elements.episodeDescription.hidden = false;
+  elements.episodeDescription.textContent = "Check the CSV file or rebuild the standalone HTML if the data changed.";
+  elements.pickButton.disabled = false;
+  elements.channelStatus.textContent = "CHECK";
+  elements.episodeCard.classList.remove("is-changing-channel");
+}
+
+function showNoSeasonState() {
+  elements.resultKicker.textContent = "No signal";
+  elements.channelStatus.textContent = "STATIC";
+  elements.episodeTitle.textContent = "Pick at least one season";
+  elements.episodeMeta.textContent = "The remote needs a range.";
+  elements.episodeDescription.hidden = false;
+  elements.episodeDescription.textContent = "Turn one season back on, then shuffle again.";
+  elements.pickButton.disabled = false;
+  elements.episodeCard.classList.remove("is-changing-channel");
+}
+
+function getCandidateEpisodes() {
+  return episodes.filter((episode) => (
+    episode.show === activeShow && activeSeasons.has(Number(episode.season))
+  ));
+}
+
+function getVisibleSeasons() {
+  return unique(
+    episodes
+      .filter((episode) => episode.show === activeShow)
+      .map((episode) => Number(episode.season))
+  ).sort((a, b) => a - b);
+}
+
+function parseCsv(csvText) {
+  const rows = csvText.trim().split(/\r?\n/).map(parseCsvLine);
+  const headers = rows.shift();
+
+  return rows.map((row) => {
+    const record = {};
+    headers.forEach((header, index) => {
+      record[header] = row[index] || "";
+    });
+    record.season = Number(record.season);
+    record.episode = Number(record.episode);
+    return record;
+  });
+}
+
+function parseCsvLine(line) {
+  const values = [];
+  let current = "";
+  let insideQuotes = false;
+
+  for (let index = 0; index < line.length; index += 1) {
+    const char = line[index];
+    const nextChar = line[index + 1];
+
+    if (char === '"' && nextChar === '"') {
+      current += '"';
+      index += 1;
+    } else if (char === '"') {
+      insideQuotes = !insideQuotes;
+    } else if (char === "," && !insideQuotes) {
+      values.push(current);
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+
+  values.push(current);
+  return values;
+}
+
+function unique(values) {
+  return Array.from(new Set(values.filter(Boolean)));
+}
+
+function randomFrom(items) {
+  return items[Math.floor(Math.random() * items.length)];
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+    </script>
+  </body>
+</html>

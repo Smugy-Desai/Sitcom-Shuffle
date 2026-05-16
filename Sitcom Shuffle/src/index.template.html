@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sitcom Shuffle</title>
+    <link rel="stylesheet" href="src/styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <div class="set-dressing" aria-hidden="true">
+        <span class="prop prop-applause">APPLAUSE</span>
+        <span class="prop prop-cue">cue card: big laugh</span>
+        <span class="prop prop-mug">world's okayest break room mug</span>
+      </div>
+
+      <section class="picker-panel" aria-labelledby="app-title">
+        <div class="topbar">
+          <p class="eyebrow">Live from the comfort couch</p>
+          <h1 id="app-title">Sitcom Shuffle</h1>
+          <p class="intro">Pick a show, choose the seasons you are in the mood for, and let the remote find tonight's rerun.</p>
+        </div>
+
+        <div class="controls" aria-label="Episode picker controls">
+          <div class="show-field">
+            <label class="field-label" for="show-select">Now tuning</label>
+            <div class="select-wrap">
+              <select id="show-select" class="show-select"></select>
+            </div>
+          </div>
+
+          <div class="filter-header">
+            <p class="field-label">Seasons</p>
+            <button id="select-all-seasons" class="text-button" type="button">All seasons</button>
+          </div>
+          <div id="season-filters" class="season-filters" aria-label="Season filters"></div>
+
+          <button id="pick-button" class="pick-button" type="button">
+            <span class="button-main">Pick an episode</span>
+          </button>
+        </div>
+
+        <section class="result-stage" aria-live="polite" aria-label="Selected episode">
+          <article id="episode-card" class="episode-card">
+            <div class="channel-screen" aria-hidden="true">
+              <span class="scanline"></span>
+              <span id="channel-status" class="channel-status">ON AIR</span>
+            </div>
+            <div class="episode-content">
+              <p id="result-kicker" class="result-kicker">Cue the theme song</p>
+              <h2 id="episode-title">Ready to shuffle?</h2>
+              <p id="episode-meta" class="episode-meta">The Office (US) is loaded.</p>
+              <p id="episode-description" class="episode-description">Pick your seasons, then let the remote do the work.</p>
+            </div>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      window.EPISODE_CSV = null;
+    </script>
+    <script src="src/app.js"></script>
+  </body>
+</html>
